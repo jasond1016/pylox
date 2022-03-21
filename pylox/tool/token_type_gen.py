@@ -28,3 +28,6 @@ if __name__ == "__main__":
         f.write("class TokenType(Enum):\n")
         for i, token_type in enumerate(TOKEN_TYPES):
             f.write(f"    {token_type} = {i}\n")
+        f.write("\n")
+        f.write("    def __str__(self):\n")
+        f.write("        return str(self.name)\n")

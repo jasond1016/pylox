@@ -42,3 +42,6 @@ class TokenType(Enum):
     VAR = 36
     WHILE = 37
     EOF = 38
+
+    def __str__(self):
+        return str(self.name)

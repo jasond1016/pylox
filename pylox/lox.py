@@ -41,5 +41,5 @@ class Lox:
     
     @staticmethod
     def __report(line, where, message):
-        print >> sys.stderr, "[line " + str(line) + "] Error" + where + ": " + message
-        had_error = True
+        print("[line " + str(line) + "] Error" + where + ": " + message, file=sys.stderr)
+        Lox.had_error = True
