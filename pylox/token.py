@@ -6,4 +6,4 @@ class Token:
         self.line = line
 
     def __repr__(self):
-        return str(self.type) + " " + self.lexme + " " + "" if self.literal == None else self.literal
+        return str(self.type) + " " + self.lexme + " " + ("" if self.literal == None else str(self.literal))

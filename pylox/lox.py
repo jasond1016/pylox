@@ -29,7 +29,7 @@ class Lox:
                 Lox.had_error = False
 
     def run(self, source):
-        print(source)
+        # print(source)
         scanner = Scanner(source)
         tokens = scanner.scan_tokens()
         for token in tokens:
