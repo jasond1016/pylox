@@ -1,9 +1,9 @@
 class Token:
-    def __init__(self, type, lexme, literal, line):
+    def __init__(self, type, lexeme, literal, line):
         self.type = type
-        self.lexme = lexme
+        self.lexeme = lexeme
         self.literal = literal
         self.line = line
 
     def __repr__(self):
-        return str(self.type) + " " + self.lexme + " " + ("" if self.literal == None else str(self.literal))
+        return str(self.type) + " " + self.lexeme + " " + ("" if self.literal == None else str(self.literal))
