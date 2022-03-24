@@ -1,5 +1,9 @@
 import sys
+
+from pylox.token_type import TokenType
 from .scanner import Scanner
+from .parser import Parser
+from .ast_printer import AstPrinter
 
 class Lox:
     had_error = False
@@ -32,8 +36,11 @@ class Lox:
         # print(source)
         scanner = Scanner(source)
         tokens = scanner.scan_tokens()
-        for token in tokens:
-            print(token)
+        parser = Parser(tokens)
+        expression = parser.parse()
+        if Lox.had_error:
+            return
+        print(AstPrinter().print(expression))
 
     @staticmethod
     def error(line, message):
@@ -43,3 +50,10 @@ class Lox:
     def __report(line, where, message):
         print("[line " + str(line) + "] Error" + where + ": " + message, file=sys.stderr)
         Lox.had_error = True
+
+    @staticmethod
+    def error(token, message):
+        if token.type == TokenType.EOF:
+            Lox.__report(token.line, " at end", message)
+        else:
+            Lox.__report(token.line, " at '" + token.lexeme + "'", message)
