@@ -4,9 +4,12 @@ from pylox.token_type import TokenType
 from .scanner import Scanner
 from .parser import Parser
 from .ast_printer import AstPrinter
+from pylox.interpreter import Interpreter
 
 class Lox:
+    interpreter = Interpreter()
     had_error = False
+    had_runtime_error = False
 
     def __init__(self):
         args = sys.argv
@@ -23,6 +26,8 @@ class Lox:
             self.run(file.read())
             if Lox.had_error:
                 sys.exit(65)
+            if Lox.had_runtime_error:
+                sys.exit(70)
 
 
     def run_prompt(self):
@@ -40,7 +45,7 @@ class Lox:
         expression = parser.parse()
         if Lox.had_error:
             return
-        print(AstPrinter().print(expression))
+        self.interpreter.interpret(expression)
 
     @staticmethod
     def error(line, message):
@@ -57,3 +62,8 @@ class Lox:
             Lox.__report(token.line, " at end", message)
         else:
             Lox.__report(token.line, " at '" + token.lexeme + "'", message)
+
+    @staticmethod
+    def runtime_error(error):
+        print(f"{error.message}\n[line {error.token.line}]", file=sys.stderr)
+        Lox.had_runtime_error = True
