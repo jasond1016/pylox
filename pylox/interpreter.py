@@ -22,18 +22,17 @@ class Interpreter(Visitor):
             return float(left) - float(right)
         elif expr.operator.type == TokenType.SLASH:
             self.__check_number_operands(expr.operator, left, right)
-            # TODO zero division should be considered
+            if self.__is_equal(right, 0):
+                return None
             return float(left) / float(right)
         elif expr.operator.type == TokenType.STAR:
             self.__check_number_operands(expr.operator, left, right)
             return float(left) * float(right)
         elif expr.operator.type == TokenType.PLUS:
-            self.__check_number_operands(expr.operator, left, right)
-            # TODO plus in lox may be different from python
-            try:
+            if (isinstance(left, (int, float)) and isinstance(right, (int, float))) or \
+                (isinstance(left, str) and isinstance(right, str)):
                 return left + right
-            except Exception:
-                raise RuntimeException(expr.operator, "Operands must be two numbers or two strings.")
+            raise RuntimeException(expr.operator, "Operands must be two numbers or two strings.")
         elif expr.operator.type == TokenType.GREATER:
             self.__check_number_operands(expr.operator, left, right)
             return float(left) > float(right)
@@ -84,28 +83,22 @@ class Interpreter(Visitor):
         return left == right
     
     def __check_number_operand(self, operator, operand):
-        try:
-            float(operand)
-        except Exception:
+        if not isinstance(operand, (int, float)):
             raise RuntimeException(operator, "Operand must be a number.")
 
     def __check_number_operands(self, operator, left, right):
-        try:
-            float(left)
-            float(right)
-        except Exception:
-            raise RuntimeException(operator, "Operands must be numbers.")
+        if not isinstance(left, (int, float)) or \
+            not isinstance(right, (int, float)):
+            raise RuntimeException(operator, "Operand must be a number.")
     
     def __stringify(self, object):
         if object is None:
             return "nil"
-        try:
-            # TODO True or False will be converted to number.
+        
+        if isinstance(object, float):
             text = str(float(object))
             if text.endswith(".0"):
                 text = text[0:len(text)-2]
             return text
-        except Exception:
-            pass
 
         return str(object)
