@@ -49,19 +49,19 @@ class Lox:
 
     @staticmethod
     def error(line, message):
-        Lox.__report(line, "", message)
+        Lox._report(line, "", message)
     
     @staticmethod
-    def __report(line, where, message):
+    def _report(line, where, message):
         print("[line " + str(line) + "] Error" + where + ": " + message, file=sys.stderr)
         Lox.had_error = True
 
     @staticmethod
     def error(token, message):
         if token.type == TokenType.EOF:
-            Lox.__report(token.line, " at end", message)
+            Lox._report(token.line, " at end", message)
         else:
-            Lox.__report(token.line, " at '" + token.lexeme + "'", message)
+            Lox._report(token.line, " at '" + token.lexeme + "'", message)
 
     @staticmethod
     def runtime_error(error):

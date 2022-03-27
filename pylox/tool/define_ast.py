@@ -47,7 +47,8 @@ def define_visitor(output_dir, types):
             f.write("        pass\n")
             f.write("\n")
 
-dirname = os.path.dirname(__file__)
-foldername = os.path.join(dirname, '../')
-define_ast(foldername + "expr.py", "Expr", EXPR)
-define_visitor(foldername + "visitor.py", EXPR)
+if __name__ == '__main__':
+    dirname = os.path.dirname(__file__)
+    foldername = os.path.join(dirname, '../')
+    define_ast(foldername + "expr.py", "Expr", EXPR)
+    define_visitor(foldername + "visitor.py", EXPR)

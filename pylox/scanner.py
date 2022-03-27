@@ -29,14 +29,14 @@ class Scanner:
         self.tokens = []
     
     def scan_tokens(self):
-        while not self.isAtEnd():
+        while not self.is_at_end():
             self.start = self.current
             self.scanToken()
         
         self.tokens.append(Token(TokenType.EOF, "", None, self.line))
         return self.tokens
 
-    def isAtEnd(self):
+    def is_at_end(self):
         return self.current >= len(self.source)
     
     def scanToken(self):
@@ -85,7 +85,7 @@ class Scanner:
             return
         elif c == '/':
             if self.match('/'):
-                while(self.peek() != '\n' and not self.isAtEnd()):
+                while(self.peek() != '\n' and not self.is_at_end()):
                     self.advance()
             else:
                 self.add_token(TokenType.SLASH)
@@ -116,7 +116,7 @@ class Scanner:
         self.tokens.append(Token(type, text, literal, self.line))
 
     def match(self, expected):
-        if self.isAtEnd():
+        if self.is_at_end():
             return False
         if self.source[self.current] != expected:
             return False
@@ -124,17 +124,17 @@ class Scanner:
         return True
     
     def peek(self):
-        if self.isAtEnd():
+        if self.is_at_end():
             return '\0'
         return self.source[self.current]
     
     def string(self):
-        while(self.peek() != '"' and not self.isAtEnd()):
+        while(self.peek() != '"' and not self.is_at_end()):
             if self.peek() == '\n':
                 self.line += 1
             self.advance()
         
-        if self.isAtEnd():
+        if self.is_at_end():
             pylox.lox.Lox.error(self.line, "Unterminated string.")
         
         self.advance()
