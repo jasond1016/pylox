@@ -1,15 +1,16 @@
 from pylox.runtime_exception import RuntimeException
 from .visitor import Visitor
 from .expr import Binary, Grouping, Literal, Unary
+from .stmt import Print, Expression
 from .token_type import TokenType
 import pylox.lox
 
 class Interpreter(Visitor):
     
-    def interpret(self, expression):
+    def interpret(self, statements):
         try:
-            value = self._evaluate(expression)
-            print(self._stringify(value))
+            for statement in statements:
+                self._execute(statement)
         except RuntimeException as err:
             pylox.lox.Lox.runtime_error(err)
 
@@ -66,6 +67,16 @@ class Interpreter(Visitor):
             self._check_number_operand(expr.operator, expr.right)
             return -float(right)
         return None
+    
+    def visit_print_stmt(self, stmt: Expression):
+        value = self._evaluate(stmt.expression)
+        print(self._stringify(value))
+
+    def visit_expression_stmt(self, stmt: Expression):
+        self._evaluate(stmt.expression)
+
+    def _execute(self, stmt):
+        stmt.accept(self)
 
     def _evaluate(self, expr):
         return expr.accept(self)

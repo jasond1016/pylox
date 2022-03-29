@@ -10,12 +10,12 @@ class Expression(Stmt):
         self.expression = expression
 
     def accept(self, visitor):
-        return visitor.visit_expression_expr(self)
+        return visitor.visit_expression_stmt(self)
 
 class Print(Stmt):
     def __init__(self, expression: Expr):
         self.expression = expression
 
     def accept(self, visitor):
-        return visitor.visit_print_expr(self)
+        return visitor.visit_print_stmt(self)
 

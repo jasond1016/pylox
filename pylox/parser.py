@@ -1,5 +1,6 @@
 from .token_type import TokenType
 from .expr import Binary, Unary, Literal, Grouping
+from .stmt import Print, Expression
 import pylox.lox
 
 class Parser:
@@ -8,11 +9,26 @@ class Parser:
         self.tokens = tokens
     
     def parse(self):
-        try:
-            return self.expression()
-        except ParserError:
-            return None
+        statements = []
+        while not self._is_at_end():
+            statements.append(self._statement())
+        return statements
     
+    def _statement(self):
+        if self._match(TokenType.PRINT):
+            return self._print_statement()
+        return self._expression_statement()
+    
+    def _print_statement(self):
+        expr = self.expression()
+        self._consume(TokenType.SEMICOLON, "Expect ';' after value.")
+        return Print(expr)
+    
+    def _expression_statement(self):
+        expr = self.expression()
+        self._consume(TokenType.SEMICOLON, "Expect ';' after expression.")
+        return Expression(expr)
+
     def expression(self):
         return self.equality()
     
