@@ -1,11 +1,14 @@
 from pylox.runtime_exception import RuntimeException
 from .visitor import Visitor
-from .expr import Binary, Grouping, Literal, Unary
-from .stmt import Print, Expression
+from .expr import Assign, Binary, Grouping, Literal, Unary, Variable
+from .stmt import Print, Expression, Var
 from .token_type import TokenType
+from .environment import Environment
 import pylox.lox
 
 class Interpreter(Visitor):
+
+    _environment = Environment()
     
     def interpret(self, statements):
         try:
@@ -68,12 +71,26 @@ class Interpreter(Visitor):
             return -float(right)
         return None
     
+    def visit_variable_expr(self, expr: Variable):
+        return self._environment.get(expr.name)
+
     def visit_print_stmt(self, stmt: Expression):
         value = self._evaluate(stmt.expression)
         print(self._stringify(value))
 
     def visit_expression_stmt(self, stmt: Expression):
         self._evaluate(stmt.expression)
+
+    def visit_var_stmt(self, stmt: Var):
+        name = stmt.name
+        if stmt.initializer:
+            value = self._evaluate(stmt.initializer)
+        self._environment.define(name.lexeme, value)
+
+    def visit_assign_expr(self, expr: Assign):
+        value = self._evaluate(expr.value)
+        self._environment._assign(expr.name, value)
+        return value
 
     def _execute(self, stmt):
         stmt.accept(self)

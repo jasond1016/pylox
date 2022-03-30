@@ -1,19 +1,40 @@
 from .token_type import TokenType
-from .expr import Binary, Unary, Literal, Grouping
-from .stmt import Print, Expression
+from .expr import Binary, Unary, Literal, Grouping, Variable, Assign
+from .stmt import Print, Expression, Var
 import pylox.lox
 
 class Parser:
     current = 0
+    class ParseError(Exception):
+        pass
+
     def __init__(self, tokens):
         self.tokens = tokens
     
     def parse(self):
         statements = []
         while not self._is_at_end():
-            statements.append(self._statement())
+            statements.append(self._declaration())
         return statements
     
+    def _declaration(self):
+        try:
+            if self._match(TokenType.VAR):
+                return self._var_declaration()
+            return self._statement()
+        except self.ParseError:
+            self._synchronize()
+            return None
+    
+    def _var_declaration(self):
+        token = self._consume(TokenType.IDENTIFIER, "Expect variable name.")
+
+        if self._match(TokenType.EQUAL):
+            initializer = self.expression()
+        
+        self._consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.")
+        return Var(token, initializer)
+
     def _statement(self):
         if self._match(TokenType.PRINT):
             return self._print_statement()
@@ -30,7 +51,21 @@ class Parser:
         return Expression(expr)
 
     def expression(self):
-        return self.equality()
+        return self._assignment()
+    
+    def _assignment(self):
+        expr = self.equality()
+
+        if self._match(TokenType.EQUAL):
+            equals = self._previous()
+            value = self._assignment()
+
+            if isinstance(expr, Variable):
+                token = expr.name
+                return Assign(token, value)
+            self._error(equals, "Invalid assignment target.")
+        
+        return expr
     
     def equality(self):
         expr = self.comparison()
@@ -98,6 +133,9 @@ class Parser:
             self._consume(TokenType.RIGHT_PAREN, "Expected ')' after expression.")
             return Grouping(expr)
         
+        if self._match(TokenType.IDENTIFIER):
+            return Variable(self._previous())
+        
         raise self._error(self._peek(), "Expect expression.")
     
     def _match(self, *types):
@@ -134,7 +172,7 @@ class Parser:
     
     def _error(self, token, message):
         pylox.lox.Lox.error(token, message)
-        return ParserError(message)
+        return self.ParseError(message)
     
     def _synchronize(self):
         self._advance()
@@ -155,5 +193,3 @@ class Parser:
             
             self._advance()
 
-class ParserError(Exception):
-    pass
