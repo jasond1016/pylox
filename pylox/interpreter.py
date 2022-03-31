@@ -1,9 +1,10 @@
 from pylox.runtime_exception import RuntimeException
 from .visitor import Visitor
 from .expr import Assign, Binary, Grouping, Literal, Unary, Variable
-from .stmt import Print, Expression, Var
+from .stmt import Stmt, Print, Expression, Var, Block
 from .token_type import TokenType
 from .environment import Environment
+from typing import List
 import pylox.lox
 
 class Interpreter(Visitor):
@@ -77,6 +78,9 @@ class Interpreter(Visitor):
     def visit_print_stmt(self, stmt: Expression):
         value = self._evaluate(stmt.expression)
         print(self._stringify(value))
+    
+    def visit_block_stmt(self, stmt: Block):
+        self._execute_block(stmt.statements, Environment(self._environment))
 
     def visit_expression_stmt(self, stmt: Expression):
         self._evaluate(stmt.expression)
@@ -94,6 +98,15 @@ class Interpreter(Visitor):
 
     def _execute(self, stmt):
         stmt.accept(self)
+    
+    def _execute_block(self, statements: List[Stmt], environment: Environment):
+        previous = self._environment
+        try:
+            self._environment = environment
+            for statement in statements:
+                self._execute(statement)
+        finally:
+            self._environment = previous
 
     def _evaluate(self, expr):
         return expr.accept(self)

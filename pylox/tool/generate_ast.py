@@ -10,6 +10,7 @@ EXPR = [
 ]
 
 STMT = [
+    "Block      | statements: List[Stmt]",
     "Expression | expression: Expr",
     "Print      | expression: Expr",
     "Var        | name: Token, initializer: Expr",
@@ -21,6 +22,7 @@ def define_ast(output_dir, basename, types):
         f.write("from .token import Token\n")
         if basename == "Stmt":
             f.write("from .expr import Expr\n")
+            f.write("from typing import List\n")
         f.write("\n")
         f.write(f"class {basename}:\n")
         f.write("    pass\n")
