@@ -12,6 +12,7 @@ EXPR = [
 STMT = [
     "Block      | statements: List[Stmt]",
     "Expression | expression: Expr",
+    "If         | condittion: Expr, then_branch: Stmt, else_branch: Stmt",
     "Print      | expression: Expr",
     "Var        | name: Token, initializer: Expr",
 ]

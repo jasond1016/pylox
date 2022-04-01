@@ -1,7 +1,7 @@
 from pylox.runtime_exception import RuntimeException
 from .visitor import Visitor
 from .expr import Assign, Binary, Grouping, Literal, Unary, Variable
-from .stmt import Stmt, Print, Expression, Var, Block
+from .stmt import Stmt, Print, Expression, Var, Block, If
 from .token_type import TokenType
 from .environment import Environment
 from typing import List
@@ -74,6 +74,12 @@ class Interpreter(Visitor):
     
     def visit_variable_expr(self, expr: Variable):
         return self._environment.get(expr.name)
+    
+    def visit_if_stmt(self, stmt: If):
+        if self._is_truthy(stmt.condittion):
+            self._execute(stmt.then_branch)
+        elif stmt.else_branch:
+            self._execute(stmt.else_branch)
 
     def visit_print_stmt(self, stmt: Expression):
         value = self._evaluate(stmt.expression)
