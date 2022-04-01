@@ -1,5 +1,5 @@
 from .token_type import TokenType
-from .expr import Binary, Unary, Literal, Grouping, Variable, Assign
+from .expr import Binary, Unary, Literal, Grouping, Variable, Assign, Logical
 from .stmt import Block, Print, Expression, Var, If
 import pylox.lox
 
@@ -76,7 +76,7 @@ class Parser:
         return self._assignment()
     
     def _assignment(self):
-        expr = self.equality()
+        expr = self._or()
 
         if self._match(TokenType.EQUAL):
             equals = self._previous()
@@ -89,6 +89,24 @@ class Parser:
         
         return expr
     
+    def _or(self):
+        expr = self._and()
+        while self._match(TokenType.OR):
+            operator = self._previous()
+            right = self._and()
+            expr = Logical(expr, operator, right)
+        
+        return expr
+    
+    def _and(self):
+        expr = self.equality()
+        if self._match(TokenType.AND):
+            operator = self._previous()
+            right = self.equality()
+            expr = Logical(expr, operator, right)
+        
+        return expr
+
     def equality(self):
         expr = self.comparison()
 

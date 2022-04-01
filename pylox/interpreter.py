@@ -1,6 +1,6 @@
 from pylox.runtime_exception import RuntimeException
 from .visitor import Visitor
-from .expr import Assign, Binary, Grouping, Literal, Unary, Variable
+from .expr import Assign, Binary, Grouping, Literal, Unary, Variable, Logical
 from .stmt import Stmt, Print, Expression, Var, Block, If
 from .token_type import TokenType
 from .environment import Environment
@@ -62,6 +62,16 @@ class Interpreter(Visitor):
 
     def visit_literal_expr(self, expr: Literal):
         return expr.value
+    
+    def visit_logical_expr(self, expr: Logical):
+        left = self._evaluate(expr.left)
+        if expr.operator.type == TokenType.OR:
+            if self._is_truthy(left):
+                return left
+        else:
+            if not self._is_truthy(left):
+                return left
+        return self._evaluate(expr.right)
 
     def visit_unary_expr(self, expr: Unary):
         right = self._evaluate(expr.right)
