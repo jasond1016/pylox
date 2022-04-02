@@ -16,6 +16,7 @@ STMT = [
     "If         | condittion: Expr, then_branch: Stmt, else_branch: Stmt",
     "Print      | expression: Expr",
     "Var        | name: Token, initializer: Expr",
+    "While      | condition: Expr, body: Stmt"
 ]
 
 def define_ast(output_dir, basename, types):

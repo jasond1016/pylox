@@ -1,7 +1,7 @@
 from pylox.runtime_exception import RuntimeException
 from .visitor import Visitor
 from .expr import Assign, Binary, Grouping, Literal, Unary, Variable, Logical
-from .stmt import Stmt, Print, Expression, Var, Block, If
+from .stmt import Stmt, Print, Expression, Var, Block, If, While
 from .token_type import TokenType
 from .environment import Environment
 from typing import List
@@ -106,6 +106,10 @@ class Interpreter(Visitor):
         if stmt.initializer:
             value = self._evaluate(stmt.initializer)
         self._environment.define(name.lexeme, value)
+    
+    def visit_while_stmt(self, stmt: While):
+        while self._is_truthy(self._evaluate(stmt.condition)):
+            self._execute(stmt.body)
 
     def visit_assign_expr(self, expr: Assign):
         value = self._evaluate(expr.value)

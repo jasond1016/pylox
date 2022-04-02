@@ -53,10 +53,13 @@ varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
 statement      → exprStmt
                | ifStmt
                | printStmt
+               | whileStmt
                | block ;
 
 ifStmt         → "if" "(" expression ")" statement
                ( "else" statement )? ;
+
+whileStmt      → "while" "(" expression ")" statement
 
 block          → "{" declaration* "}" ;
 

@@ -1,6 +1,7 @@
 {
     "version": "0.2.0",
     "configurations": [
+    
         {"name":"Python: 模块","type":"python","request":"launch","module":"请输入模块名称","justMyCode":true},
         {
             "name": "Python: 当前文件",
@@ -10,7 +11,8 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-                "C:\\Project\\pylox\\pylox\\input\\script"
+                // "C:\\Project\\pylox\\pylox\\input\\script"
+                "D:\\projects\\pylox\\pylox\\input\\script"
             ]
         }
     ]
