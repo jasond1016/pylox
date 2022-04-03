@@ -51,18 +51,26 @@ declaration    → varDecl
 varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
 
 statement      → exprStmt
+               | forStmt
                | ifStmt
                | printStmt
                | whileStmt
                | block ;
 
+exprStmt       → expression ";" ;
+
 ifStmt         → "if" "(" expression ")" statement
                ( "else" statement )? ;
+
+forStmt        → "for" "(" ( varDecl | exprStmt | ";" )
+                expression? ";"
+                expression? ")"
+                statement ;
+
+printStmt      → "print" expression ";" ;
 
 whileStmt      → "while" "(" expression ")" statement
 
 block          → "{" declaration* "}" ;
 
-exprStmt       → expression ";" ;
-printStmt      → "print" expression ";" ;
 ```

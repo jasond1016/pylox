@@ -103,6 +103,7 @@ class Interpreter(Visitor):
 
     def visit_var_stmt(self, stmt: Var):
         name = stmt.name
+        value = None
         if stmt.initializer:
             value = self._evaluate(stmt.initializer)
         self._environment.define(name.lexeme, value)

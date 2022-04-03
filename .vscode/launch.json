@@ -7,12 +7,12 @@
             "name": "Python: 当前文件",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            "program": "${workspaceRoot}\\lox.py",
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
                 // "C:\\Project\\pylox\\pylox\\input\\script"
-                "D:\\projects\\pylox\\pylox\\input\\script"
+                "${workspaceRoot}\\pylox\\input\\script"
             ]
         }
     ]

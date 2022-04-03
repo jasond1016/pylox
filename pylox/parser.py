@@ -29,6 +29,7 @@ class Parser:
     def _var_declaration(self):
         token = self._consume(TokenType.IDENTIFIER, "Expect variable name.")
 
+        initializer = None
         if self._match(TokenType.EQUAL):
             initializer = self.expression()
         
@@ -36,6 +37,8 @@ class Parser:
         return Var(token, initializer)
 
     def _statement(self):
+        if self._match(TokenType.FOR):
+            return self._for_statement()
         if self._match(TokenType.IF):
             return self._if_statement()
         if self._match(TokenType.WHILE):
@@ -46,6 +49,46 @@ class Parser:
             return Block(self._block_statement())
         return self._expression_statement()
     
+    def _for_statement(self):
+        self._consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.")
+        if self._match(TokenType.VAR):
+            initializer = self._var_declaration()
+        elif self._match(TokenType.SEMICOLON):
+            initializer = None
+        else:
+            initializer = self._expression_statement()
+        
+        if self._check(TokenType.SEMICOLON):
+            condition = None
+        else:
+            condition = self.expression()
+        self._consume(TokenType.SEMICOLON, "Expect ';' after loop condition.")
+        
+        if self._check(TokenType.RIGHT_PAREN):
+            increment = None
+        else:
+            increment = self.expression()
+        self._consume(TokenType.RIGHT_PAREN, "Expect ';' after for clauses.")
+
+        body = self._statement()
+        if increment is not None:
+            new_body = []
+            new_body.append(body)
+            new_body.append(Expression(increment))
+            body = Block(new_body)
+        
+        if condition is None:
+            condition = Literal(True)
+        body = While(condition, body)
+        
+        if initializer is not None:
+            new_body = []
+            new_body.append(Expression(initializer))
+            new_body.append(body)
+            body = Block(new_body)
+
+        return body
+
     def _if_statement(self):
         self._consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.")
         expr = self.expression()
