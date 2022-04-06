@@ -3,6 +3,7 @@ import os
 EXPR = [
     "Assign   | name: Token, value: Expr",
     "Binary   | left: Expr, operator: Token, right: Expr",
+    "Call     | callee: Expr, paren: Token, arguments: List[Expr]",
     "Grouping | expression: Expr",
     "Literal  | value",
     "Logical  | left: Expr, operator: Token, right: Expr",
@@ -25,7 +26,7 @@ def define_ast(output_dir, basename, types):
         f.write("from .token import Token\n")
         if basename == "Stmt":
             f.write("from .expr import Expr\n")
-            f.write("from typing import List\n")
+        f.write("from typing import List\n")
         f.write("\n")
         f.write(f"class {basename}:\n")
         f.write("    pass\n")

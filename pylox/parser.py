@@ -1,5 +1,5 @@
 from .token_type import TokenType
-from .expr import Binary, Unary, Literal, Grouping, Variable, Assign, Logical
+from .expr import Binary, Unary, Literal, Grouping, Variable, Assign, Logical, Call
 from .stmt import Block, Print, Expression, Var, If, While
 import pylox.lox
 
@@ -205,8 +205,35 @@ class Parser:
             right = self.unary()
             return Unary(operator, right)
         
-        return self.primary()
+        return self._call()
     
+    def _call(self):
+        expr = self.primary()
+        while True:
+            if self._match(TokenType.LEFT_PAREN):
+                expr = self._finish_call(expr)
+            else:
+                break
+        
+        return expr
+    
+    def _finish_call(self, expr):
+        arguments = []
+        if not self._check(TokenType.RIGHT_BRACE):
+            arguments.append(self.expression())
+            while self._match(TokenType.COMMA):
+                if len(arguments) >= 255:
+                    self._error(self._peek(), "Can't have more than 255 arguments.")
+                arguments.append(self.expression())
+        paren = self._consume(TokenType.RIGHT_PAREN, "Expect ')' after arguments.")
+        return Call(expr, paren, arguments)
+    
+    def _arguments(self):
+        expr = self.expression()
+        if self._match(TokenType.LEFT_PAREN):
+            while self._match(TokenType.RIGHT_PAREN):
+                pass
+
     def primary(self):
         if self._match(TokenType.TRUE):
             return Literal(True)

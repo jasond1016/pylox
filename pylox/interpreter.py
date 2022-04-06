@@ -1,6 +1,7 @@
+from pylox.lox_callable import LoxCallable
 from pylox.runtime_exception import RuntimeException
 from .visitor import Visitor
-from .expr import Assign, Binary, Grouping, Literal, Unary, Variable, Logical
+from .expr import Assign, Binary, Grouping, Literal, Unary, Variable, Logical, Call
 from .stmt import Stmt, Print, Expression, Var, Block, If, While
 from .token_type import TokenType
 from .environment import Environment
@@ -56,6 +57,18 @@ class Interpreter(Visitor):
             return self._is_equal(left, right)
 
         return None
+    
+    def visit_call_expr(self, expr: Call):
+        callee = self._evaluate(expr.callee)
+        arguments = []
+        for argument in expr.arguments:
+            arguments.append(self._evaluate(argument))
+
+        if not isinstance(callee, LoxCallable):
+            raise RuntimeException(expr.paren, "Can only call functions and classes.")
+        
+        function = callee
+        return function.call(self, arguments)
 
     def visit_grouping_expr(self, expr: Grouping):
         return self._evaluate(expr.expression)
