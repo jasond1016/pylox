@@ -1,16 +1,33 @@
 from pylox.lox_callable import LoxCallable
+from pylox.lox_function import LoxFunction
 from pylox.runtime_exception import RuntimeException
 from .visitor import Visitor
 from .expr import Assign, Binary, Grouping, Literal, Unary, Variable, Logical, Call
-from .stmt import Stmt, Print, Expression, Var, Block, If, While
+from .stmt import Stmt, Print, Expression, Var, Block, If, While, Function
 from .token_type import TokenType
 from .environment import Environment
 from typing import List
 import pylox.lox
+import time
 
 class Interpreter(Visitor):
 
-    _environment = Environment()
+    _globals = Environment()
+    _environment = _globals
+
+    def __init__(self):
+        class Clock(LoxCallable):
+
+            def call(self, interpreter, arguments):
+                return time.time() / 1000
+
+            def arity(self):
+                return 0
+            
+            def __repr__(self) -> str:
+                return "<native fn>"
+
+        self._globals.define("clock", Clock())
     
     def interpret(self, statements):
         try:
@@ -68,6 +85,8 @@ class Interpreter(Visitor):
             raise RuntimeException(expr.paren, "Can only call functions and classes.")
         
         function = callee
+        if len(arguments) != function.arity():
+            raise RuntimeException(expr.paren, f"Expected {function.arity()} arguments but got {len(arguments)}.")
         return function.call(self, arguments)
 
     def visit_grouping_expr(self, expr: Grouping):
@@ -113,6 +132,10 @@ class Interpreter(Visitor):
 
     def visit_expression_stmt(self, stmt: Expression):
         self._evaluate(stmt.expression)
+    
+    def visit_function_stmt(self, stmt: Function):
+        function = LoxFunction(stmt)
+        self._environment.define(stmt.name.lexeme, function)
 
     def visit_var_stmt(self, stmt: Var):
         name = stmt.name

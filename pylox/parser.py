@@ -1,6 +1,6 @@
 from .token_type import TokenType
 from .expr import Binary, Unary, Literal, Grouping, Variable, Assign, Logical, Call
-from .stmt import Block, Print, Expression, Var, If, While
+from .stmt import Block, Function, Print, Expression, Var, If, While
 import pylox.lox
 
 class Parser:
@@ -19,6 +19,8 @@ class Parser:
     
     def _declaration(self):
         try:
+            if self._match(TokenType.FUN):
+                return self._function("function")
             if self._match(TokenType.VAR):
                 return self._var_declaration()
             return self._statement()
@@ -26,6 +28,23 @@ class Parser:
             self._synchronize()
             return None
     
+    def _function(self, type):
+        token = self._consume(TokenType.IDENTIFIER, f"Expect {type} name.")
+        self._consume(TokenType.LEFT_PAREN, f"Expect '(' after {type} name.")
+        params = []
+        if not self._check(TokenType.RIGHT_PAREN):
+            params.append(self._consume(TokenType.IDENTIFIER, "Expect parameter name."))
+            while self._match(TokenType.COMMA):
+                if len(params) >= 255:
+                    self._error(self._peek(), "Can't have more than 255 parameters.")
+                params.append(self._consume(TokenType.IDENTIFIER, "Expect parameter name."))
+
+        self._consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.")
+
+        self._consume(TokenType.LEFT_BRACE, "Expect '{' before " + type + " body.")
+        body = self._block_statement()
+        return Function(token, params, body)
+
     def _var_declaration(self):
         token = self._consume(TokenType.IDENTIFIER, "Expect variable name.")
 
@@ -219,7 +238,7 @@ class Parser:
     
     def _finish_call(self, expr):
         arguments = []
-        if not self._check(TokenType.RIGHT_BRACE):
+        if not self._check(TokenType.RIGHT_PAREN):
             arguments.append(self.expression())
             while self._match(TokenType.COMMA):
                 if len(arguments) >= 255:
