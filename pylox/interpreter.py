@@ -1,9 +1,10 @@
 from pylox.lox_callable import LoxCallable
 from pylox.lox_function import LoxFunction
+from pylox.return_exception import ReturnException
 from pylox.runtime_exception import RuntimeException
 from .visitor import Visitor
 from .expr import Assign, Binary, Grouping, Literal, Unary, Variable, Logical, Call
-from .stmt import Stmt, Print, Expression, Var, Block, If, While, Function
+from .stmt import Return, Stmt, Print, Expression, Var, Block, If, While, Function
 from .token_type import TokenType
 from .environment import Environment
 from typing import List
@@ -12,8 +13,8 @@ import time
 
 class Interpreter(Visitor):
 
-    _globals = Environment()
-    _environment = _globals
+    globals = Environment()
+    _environment = globals
 
     def __init__(self):
         class Clock(LoxCallable):
@@ -27,7 +28,7 @@ class Interpreter(Visitor):
             def __repr__(self) -> str:
                 return "<native fn>"
 
-        self._globals.define("clock", Clock())
+        self.globals.define("clock", Clock())
     
     def interpret(self, statements):
         try:
@@ -118,14 +119,20 @@ class Interpreter(Visitor):
         return self._environment.get(expr.name)
     
     def visit_if_stmt(self, stmt: If):
-        if self._is_truthy(stmt.condittion):
+        if self._is_truthy(self._evaluate(stmt.condittion)):
             self._execute(stmt.then_branch)
-        elif stmt.else_branch:
+        elif stmt.else_branch is not None:
             self._execute(stmt.else_branch)
 
     def visit_print_stmt(self, stmt: Expression):
         value = self._evaluate(stmt.expression)
         print(self._stringify(value))
+    
+    def visit_return_stmt(self, stmt: Return):
+        value = None
+        if stmt.value is not None:
+            value = self._evaluate(stmt.value)
+        raise ReturnException(value)
     
     def visit_block_stmt(self, stmt: Block):
         self._execute_block(stmt.statements, Environment(self._environment))

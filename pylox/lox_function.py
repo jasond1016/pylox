@@ -1,4 +1,6 @@
 from codecs import EncodedFile
+
+from pylox.return_exception import ReturnException
 from .lox_callable import LoxCallable
 from .stmt import Function
 from .environment import Environment
@@ -9,11 +11,14 @@ class LoxFunction(LoxCallable):
         self._declaration = declaration
 
     def call(self, interpreter, arguments):
-        environment = Environment(interpreter._globals)
+        environment = Environment(interpreter.globals)
         for i in range(len(self._declaration.params)):
             environment.define(self._declaration.params[i].lexeme, arguments[i])
         
-        interpreter._execute_block(self._declaration.body, environment)
+        try:
+            interpreter._execute_block(self._declaration.body, environment)
+        except ReturnException as return_value:
+            return return_value.value
     
     def arity(self):
         return len(self._declaration.params)

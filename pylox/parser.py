@@ -1,6 +1,6 @@
 from .token_type import TokenType
 from .expr import Binary, Unary, Literal, Grouping, Variable, Assign, Logical, Call
-from .stmt import Block, Function, Print, Expression, Var, If, While
+from .stmt import Block, Function, Print, Expression, Return, Var, If, While
 import pylox.lox
 
 class Parser:
@@ -64,6 +64,8 @@ class Parser:
             return self._while_statement()
         if self._match(TokenType.PRINT):
             return self._print_statement()
+        if self._match(TokenType.RETURN):
+            return self._return_statement()
         if self._match(TokenType.LEFT_BRACE):
             return Block(self._block_statement())
         return self._expression_statement()
@@ -113,6 +115,7 @@ class Parser:
         expr = self.expression()
         self._consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition.")
         then_branch = self._statement()
+        else_branch = None
         if self._match(TokenType.ELSE):
             else_branch = self._statement()
         return If(expr, then_branch, else_branch)
@@ -128,6 +131,14 @@ class Parser:
         expr = self.expression()
         self._consume(TokenType.SEMICOLON, "Expect ';' after value.")
         return Print(expr)
+
+    def _return_statement(self):
+        keyword = self._previous()
+        value = None
+        if not self._check(TokenType.SEMICOLON):
+            value = self.expression()
+        self._consume(TokenType.SEMICOLON, "Expect ';' after return value.")
+        return Return(keyword, value)
     
     def _block_statement(self):
         statements = []
