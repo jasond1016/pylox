@@ -7,11 +7,12 @@ from .environment import Environment
 
 
 class LoxFunction(LoxCallable):
-    def __init__(self, declaration: Function) -> None:
+    def __init__(self, declaration: Function, closure: Environment) -> None:
         self._declaration = declaration
+        self._closure = closure
 
     def call(self, interpreter, arguments):
-        environment = Environment(interpreter.globals)
+        environment = Environment(self._closure)
         for i in range(len(self._declaration.params)):
             environment.define(self._declaration.params[i].lexeme, arguments[i])
         
